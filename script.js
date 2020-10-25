@@ -111,7 +111,10 @@ function showTime() {
 	date.innerHTML = `${getWeekDay(weekDay)}, ${day} ${getMonth(month)}`;
 	season.innerHTML = `${getSeason(month)}, ${year}`;
 	
-	if (min == 0 && sec == 0) setBackground();
+	if (min == 0 && sec == 0) {
+		setBackground();
+		getQuote();
+	}
 	setTimeout(showTime, 1000);
 }
 
