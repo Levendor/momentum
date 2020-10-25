@@ -10,8 +10,10 @@ const body = document.querySelector('body'),
 			weatherIcon = document.querySelector('.weather-icon'),
 			temperature = document.querySelector('.temperature'),
 			weatherDescription = document.querySelector('.weather-description'),
+			weatherBox = document.querySelector('.weather-box');
 			windSpeed = document.querySelector('.wind-speed'),
 			humidity = document.querySelector('.humidity'),
+			warning = document.querySelector('.warning'),
 			city = document.querySelector('.city'),
 			changeBGbutton = document.querySelector('.changeBGbutton'),
 			clearLSbutton = document.querySelector('.clearStorage'),
@@ -226,7 +228,7 @@ function clearNameText() {
 
 function getFocus() {
   if (localStorage.getItem('focus') === null) {
-    focus.textContent = '[enter your goal]';
+    focus.textContent = '[enter your current task]';
   } else {
 		toHide2.classList.add('hidden');
     focus.textContent = localStorage.getItem('focus');
@@ -253,11 +255,19 @@ function clearFocusText() {
 }
 
 async function getQuote() {
-	const url = 'https://cors-anywhere.herokuapp.com/https://api.forismatic.com/api/1.0/?method=getQuote&format=json&lang=en';
-  const res = await fetch(url);
-  const data = await res.json(); 
-  blockquote.textContent = data.quoteText;
-  figcaption.textContent = data.quoteAuthor;
+	// const url = 'https://cors-anywhere.herokuapp.com/https://api.forismatic.com/api/1.0/?method=getQuote&format=json&lang=en';
+	const url = 'https://type.fit/api/quotes?method=get&format=json';
+	try {
+		const data = await fetch(url).then( res => res.json());
+		// blockquote.textContent = data.quoteText;
+		// figcaption.textContent = data.quoteAuthor;
+		const m = Math.floor(Math.random() * 1643);
+		blockquote.textContent = data[m].text;
+		figcaption.textContent = data[m].author;
+	} catch(error) {
+		blockquote.textContent = 'Please, check console and get new quote later';
+		figcaption.textContent = '';
+	}
 }
 
 async function getWeather() {
@@ -268,14 +278,27 @@ async function getWeather() {
     city.textContent = localStorage.getItem('city');
 	}
 	const url = `https://api.openweathermap.org/data/2.5/weather?q=${city.textContent}&lang=en&appid=634b0d67ec10e6b80374dfefaba2459c&units=metric`;
-  const res = await fetch(url);
-  const data = await res.json(); 
-	weatherIcon.className = 'weather-icon owf';
-  weatherIcon.classList.add(`owf-${data.weather[0].id}`);
-  temperature.textContent = `${data.main.temp}°C`;
-  weatherDescription.textContent = data.weather[0].description;
-	windSpeed.textContent = `wind speed ${data.wind.speed} m/s`;
-	humidity.textContent = `humidity ${data.main.humidity}%`
+	
+	try {
+		const res = await fetch(url);
+		const data = await res.json(); 
+		weatherIcon.className = 'weather-icon owf';
+		weatherIcon.classList.add(`owf-${data.weather[0].id}`);
+		temperature.textContent = `${data.main.temp}°C`;
+		weatherDescription.textContent = data.weather[0].description;
+		windSpeed.textContent = `wind speed ${data.wind.speed} m/s`;
+		humidity.textContent = `humidity ${data.main.humidity}%`;
+
+		weatherBox.classList.remove('hidden');
+		windSpeed.classList.remove('hidden');
+		humidity.classList.remove('hidden');
+		warning.classList.add('hidden');
+	} catch (error) {
+		weatherBox.classList.add('hidden');
+		windSpeed.classList.add('hidden');
+		humidity.classList.add('hidden');
+		warning.classList.remove('hidden');
+	}
 }
 
 function setCity(event) {
