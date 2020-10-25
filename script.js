@@ -22,7 +22,7 @@ const body = document.querySelector('body'),
 			toHide2 = document.querySelector('.to-hide2'),
 			enterName = document.querySelector('.enter-name'),
 			brackets = document.querySelectorAll('.brackets');
-let bgCounter = Math.floor(Math.random() * 20),
+let bgCounter = Math.floor(Math.random() * 6),
 	i,j;
 	// tempText = ''
 
@@ -120,8 +120,24 @@ function setBackground(iter = false) {
 			hour = today.getHours(),
 			imgLink = 'assets/images';
 			TimesOfDay = ['/morning/', '/day/', '/evening/',	'/night/'];
-			greetingList = ['Good morning, ', 'Good day,', 'Good evening, ',	'Have a good night, '];
-			images = ['01.jpg', '02.jpg', '03.jpg', '04.jpg', '05.jpg', '06.jpg', '07.jpg', '08.jpg', '09.jpg', '10.jpg', '11.jpg', '12.jpg', '13.jpg', '14.jpg', '15.jpg', '16.jpg', '17.jpg', '18.jpg', '19.jpg', '20.jpg'];
+			greetingList = ['Good morning, ', 'Good day,', 'Good evening, ',	'Have a good night, '],
+			imageArray = ['01.jpg', '02.jpg', '03.jpg', '04.jpg', '05.jpg', '06.jpg', '07.jpg', '08.jpg', '09.jpg', '10.jpg', '11.jpg', '12.jpg', '13.jpg', '14.jpg', '15.jpg', '16.jpg', '17.jpg', '18.jpg', '19.jpg', '20.jpg'],
+			images = [];
+
+	getImages();
+			
+	function getImages() {
+		for (let k = 0; k < 6; k++) {
+			let f = Math.floor(Math.random() * 20);
+			if (!images.some( item => item == imageArray[f])) {
+				images.push(imageArray[f]);
+			}  else {
+				k--;
+				continue;
+			}
+		}
+		console.log(images);
+	};
 		
 	function loadBGimage(address) {
 		const body = document.querySelector('body');
