@@ -1,17 +1,32 @@
-const time = document.querySelector('.time'),
+const body = document.querySelector('body'),
+			time = document.querySelector('.time'),
 			date = document.querySelector('.date'),
 			season = document.querySelector('.year'),
 			greeting = document.querySelector('.greeting'),
 			name = document.querySelector('.name'),
 			focus = document.querySelector('.focus'),
-			changeBGbutton = document.querySelector('.changeBGbutton');
-let bgCounter = localStorage.getItem('bgCounter') ? localStorage.getItem('bgCounter') : Math.floor(Math.random() * 20),
+			blockquote = document.querySelector('blockquote'),
+			figcaption = document.querySelector('figcaption'),
+			weatherIcon = document.querySelector('.weather-icon'),
+			temperature = document.querySelector('.temperature'),
+			weatherDescription = document.querySelector('.weather-description'),
+			windSpeed = document.querySelector('.wind-speed'),
+			humidity = document.querySelector('.humidity'),
+			city = document.querySelector('.city'),
+			changeBGbutton = document.querySelector('.changeBGbutton'),
+			clearLSbutton = document.querySelector('.clearStorage'),
+			changeQuote = document.querySelector('.changeQuote'),
+			toHide = document.querySelector('.to-hide'),
+			toHide2 = document.querySelector('.to-hide2'),
+			enterName = document.querySelector('.enter-name'),
+			brackets = document.querySelectorAll('.brackets');
+let bgCounter = Math.floor(Math.random() * 20),
 	i,j;
-			
-// localStorage.setItem('bgCounter', bgCounter);
+	// tempText = ''
 
 console.clear();
 console.log(bgCounter);
+// enterName.classList.add('hidden');
 
 function showTime() {
 	let today = new Date,
@@ -168,18 +183,139 @@ function setBackground(iter = false) {
 	greeting.textContent = getGreetingText();
 };
 
+function getName() {
+  if (localStorage.getItem('name') === null) {
+		greeting.classList.add('hidden');
+		brackets.forEach( elem => elem.classList.remove('hidden'));
+    name.textContent = 'enter name';
+		toHide.classList.add('hidden');
+  } else {
+		enterName.classList.add('hidden');
+		greeting.classList.remove('hidden');
+		brackets.forEach( elem => elem.classList.add('hidden'));
+    name.textContent = localStorage.getItem('name');
+		toHide.classList.remove('hidden');
+  }
+}
 
+function setName(e) {
+  if (e.type === 'keypress') {
+    if (e.which == 13 || e.keyCode == 13) name.blur();
+  } else {
+		if (name.innerText == '' || name.innerText == null) {
+			enterName.classList.add('hidden');
+			getName();
+		} else {
+			enterName.classList.add('hidden');
+			greeting.classList.remove('hidden');
+			brackets.forEach( elem => elem.classList.add('hidden'));
+			localStorage.setItem('name', e.target.innerText);
+			toHide.classList.remove('hidden');
+		}
+  }
+}
+
+function clearNameText() {
+	enterName.classList.remove('hidden');
+	greeting.classList.add('hidden');
+	brackets.forEach( elem => elem.classList.add('hidden'));
+	this.innerText = '';
+	toHide.classList.add('hidden');
+	this.focus();
+}
+
+function getFocus() {
+  if (localStorage.getItem('focus') === null) {
+    focus.textContent = '[enter your goal]';
+  } else {
+		toHide2.classList.add('hidden');
+    focus.textContent = localStorage.getItem('focus');
+  }
+}
+
+function setFocus(e) {
+  if (e.type === 'keypress') {
+    if (e.which == 13 || e.keyCode == 13) focus.blur();
+  } else {
+		if (focus.innerText == '' || focus.innerText == null) {
+			getFocus();
+		} else {
+			localStorage.setItem('focus', e.target.innerText);
+			toHide2.classList.add('hidden');
+		}
+  }
+}
+
+function clearFocusText() {
+	toHide2.classList.remove('hidden');
+	this.innerText = '';
+	this.focus();
+}
+
+async function getQuote() {
+	const url = 'https://cors-anywhere.herokuapp.com/https://api.forismatic.com/api/1.0/?method=getQuote&format=json&lang=en';
+  const res = await fetch(url);
+  const data = await res.json(); 
+  blockquote.textContent = data.quoteText;
+  figcaption.textContent = data.quoteAuthor;
+}
+
+async function getWeather() {
+  if (localStorage.getItem('city') === null) {
+		localStorage.setItem('city', 'Minsk');
+    city.textContent = localStorage.getItem('city');
+	} else {
+    city.textContent = localStorage.getItem('city');
+	}
+	const url = `https://api.openweathermap.org/data/2.5/weather?q=${city.textContent}&lang=en&appid=634b0d67ec10e6b80374dfefaba2459c&units=metric`;
+  const res = await fetch(url);
+  const data = await res.json(); 
+	weatherIcon.className = 'weather-icon owf';
+  weatherIcon.classList.add(`owf-${data.weather[0].id}`);
+  temperature.textContent = `${data.main.temp}°C`;
+  weatherDescription.textContent = data.weather[0].description;
+	windSpeed.textContent = `wind speed ${data.wind.speed} m/s`;
+	humidity.textContent = `humidity ${data.main.humidity}%`
+}
+
+function setCity(event) {
+  if (event.code === 'Enter') {
+		if (city.textContent == '') 
+    city.textContent = localStorage.getItem('city');
+		localStorage.setItem('city', city.textContent);	
+    getWeather();
+    city.blur();
+  }
+}
+
+name.addEventListener('keypress', setName);
+name.addEventListener('blur', setName);
+name.addEventListener('click', clearNameText);
+focus.addEventListener('keypress', setFocus);
+focus.addEventListener('blur', setFocus);
+focus.addEventListener('click', clearFocusText);
+city.addEventListener('keypress', setCity);
 
 showTime();
 setBackground();
-changeBGbutton.addEventListener('click', () => {
-	setBackground(true);
+getName();
+getFocus();
+document.addEventListener('DOMContentLoaded', getQuote);
+document.addEventListener('DOMContentLoaded', getWeather);
+
+clearLSbutton.addEventListener('click', () => {
+	localStorage.clear();
+	location.reload();
 });
 
+changeBGbutton.addEventListener('click', () => {
+	setBackground(true);
+	body.insertAdjacentHTML('afterbegin',
+	'<span class="inform">Check the console to navigate the background list</span>');
+	setTimeout( () => document.querySelector('.inform').remove(), 2000);
+});
 
-
-
-
+changeQuote.addEventListener('click', getQuote);
 
 
 
